@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3학년 자습 감독 일정 안내</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+        body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        @media print {
+            header, footer, .no-print { display: none !important; }
+            main { max-width: 100% !important; padding: 0 !important; }
+            .print-only { display: block !important; }
+            .bg-white, .bg-slate-50 { background: transparent !important; }
+            .border { border-color: #000 !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col antialiased transition-colors">
+
+    <!-- Header / Navbar -->
+    <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30 shadow-sm no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center font-bold text-xl shadow-md shadow-brand-500/20">
+                    <i data-lucide="clipboard-check" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white leading-tight">3학년 자습 감독 안내</h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium hidden sm:block">수능 전 자습 감독 맞춤 스케줄러</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <!-- Dark Mode Toggle -->
+                <button id="btn-theme-toggle" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+                    <i data-lucide="moon" class="w-5 h-5 dark:hidden"></i>
+                    <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+                </button>
+                
+                <!-- Live Clock & Date -->
+                <div class="bg-slate-100 dark:bg-slate-700 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-600">
+                    <div id="live-date" class="text-xs font-semibold text-slate-500 dark:text-slate-300">2026. 10. 22 (목)</div>
+                    <div id="live-clock" class="text-sm font-bold text-brand-700 dark:text-brand-400 tracking-wider">00:00:00</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- Top Control Bar: Select Teacher & Quick Day Filter -->
+        <section class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 space-y-4 no-print">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                
+                <!-- Teacher Selector -->
+                <div class="flex-1 min-w-[280px]">
+                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+                        <i data-lucide="user" class="w-3.5 h-3.5 inline mr-1 text-brand-600"></i>담당 교사 선택
+                    </label>
+                    <div class="relative">
+                        <select id="teacher-select" class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white font-semibold text-base rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 p-3 pr-10 appearance-none transition-all cursor-pointer">
+                            <option value="">선생님 이름을 선택하세요</option>
+                        </select>
+                        <i data-lucide="chevron-down" class="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                    </div>
+                </div>
+
+                <!-- Day Selector Tabs -->
+                <div class="w-full md:w-auto">
+                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+                        <i data-lucide="calendar" class="w-3.5 h-3.5 inline mr-1 text-brand-600"></i>요일 및 일정 선택
+                    </label>
+                    <div class="flex flex-wrap gap-1.5 bg-slate-100 dark:bg-slate-700/60 p-1.5 rounded-xl border border-slate-200 dark:border-slate-600" id="day-tabs">
+                        <button data-day="월" class="day-tab px-3 py-2 text-sm font-semibold rounded-lg transition-all">월 (6교시)</button>
+                        <button data-day="화" class="day-tab px-3 py-2 text-sm font-semibold rounded-lg transition-all">화 (7교시)</button>
+                        <button data-day="수" class="day-tab px-3 py-2 text-sm font-semibold rounded-lg transition-all">수 (6교시)</button>
+                        <button data-day="목" class="day-tab px-3 py-2 text-sm font-semibold rounded-lg transition-all">목 (6교시)</button>
+                        <button data-day="금" class="day-tab px-3 py-2 text-sm font-semibold rounded-lg transition-all">금 (4교시)</button>
+                        <button data-day="11/16(월)" class="day-tab px-3 py-2 text-sm font-semibold rounded-lg transition-all text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 border border-amber-300/50">★ 11/16(월) 특별 (5교시)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Favorite / Quick Actions -->
+            <div class="flex flex-wrap items-center justify-between border-t border-slate-100 dark:border-slate-700/60 pt-3 text-xs text-slate-500 dark:text-slate-400 gap-2">
+                <div class="flex items-center gap-2">
+                    <span id="saved-teacher-info" class="font-medium text-slate-600 dark:text-slate-300">선택된 선생님: <strong class="text-brand-600 dark:text-brand-400" id="current-teacher-name">없음</strong></span>
+                    <button id="btn-save-default" class="hidden text-brand-600 dark:text-brand-400 hover:text-brand-800 bg-brand-50 dark:bg-brand-950/50 hover:bg-brand-100 px-2.5 py-1 rounded-md font-semibold transition-colors">
+                        <i data-lucide="bookmark" class="w-3 h-3 inline mr-1"></i>기본 선생님으로 저장
+                    </button>
+                </div>
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <button id="btn-print" class="hover:text-slate-800 dark:hover:text-white flex items-center gap-1 font-medium bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 px-2.5 py-1 rounded-md transition-colors">
+                        <i data-lucide="printer" class="w-3.5 h-3.5"></i>인쇄 / PDF
+                    </button>
+                    <button id="btn-copy-schedule" class="hover:text-slate-800 dark:hover:text-white flex items-center gap-1 font-medium bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 px-2.5 py-1 rounded-md transition-colors">
+                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>일정 복사
+                    </button>
+                    <button id="btn-test-alert" class="hover:text-amber-800 text-amber-700 dark:text-amber-400 flex items-center gap-1 font-medium bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 px-2.5 py-1 rounded-md transition-colors">
+                        <i data-lucide="bell" class="w-3.5 h-3.5"></i>알림 테스트
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dynamic Content Tabs: Individual Schedule vs Full Grid Table -->
+        <div class="flex border-b border-slate-200 dark:border-slate-700 no-print">
+            <button id="tab-my-schedule" class="px-5 py-3 text-sm font-bold border-b-2 border-brand-600 text-brand-600 dark:text-brand-400 flex items-center gap-2">
+                <i data-lucide="user-check" class="w-4 h-4"></i>개인 감독 일정
+            </button>
+            <button id="tab-full-schedule" class="px-5 py-3 text-sm font-bold border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 flex items-center gap-2">
+                <i data-lucide="grid" class="w-4 h-4"></i>전체 시간표 조회
+            </button>
+        </div>
+
+        <!-- VIEW 1: Individual Teacher Schedule -->
+        <section id="view-my-schedule" class="space-y-4">
+            <!-- Empty State Prompt -->
+            <div id="no-teacher-prompt" class="bg-white dark:bg-slate-800 rounded-2xl p-12 text-center border border-slate-200 dark:border-slate-700 shadow-sm space-y-3">
+                <div class="w-16 h-16 bg-brand-50 dark:bg-slate-700 text-brand-600 dark:text-brand-400 rounded-full flex items-center justify-center mx-auto">
+                    <i data-lucide="search" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200">선생님 이름을 선택해 주세요</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto">상단의 드롭다운 메뉴에서 성함을 선택하시면 지정된 요일의 정확한 자습 감독 교시와 반을 확인할 수 있습니다.</p>
+            </div>
+
+            <!-- Schedule Card View -->
+            <div id="teacher-schedule-container" class="hidden space-y-4">
+                <!-- Summary Card Header -->
+                <div class="bg-gradient-to-r from-brand-600 to-brand-700 dark:from-brand-700 dark:to-brand-900 rounded-2xl p-6 text-white shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="bg-white/20 text-white text-xs px-2.5 py-0.5 rounded-full font-semibold backdrop-blur-sm" id="badge-selected-day">월요일</span>
+                            <span class="text-xs text-brand-100" id="badge-date-sub">3학년 자습 감독 일정</span>
+                        </div>
+                        <h2 class="text-2xl font-bold tracking-tight"><span id="card-teacher-name">선생님</span> <span class="text-lg font-normal text-brand-100">선생님 감독 일정</span></h2>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-xl border border-white/20 text-center self-stretch sm:self-auto">
+                        <div class="text-xs text-brand-100 font-medium">배정된 감독 수</div>
+                        <div class="text-2xl font-black tracking-tight" id="count-slots">0개 교시</div>
+                    </div>
+                </div>
+
+                <!-- Timeline / Slots List -->
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                    <div class="p-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex justify-between items-center">
+                        <h3 class="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                            <i data-lucide="clock" class="w-4 h-4 text-brand-600"></i>교시별 감독 상세
+                        </h3>
+                        <span class="text-xs text-slate-500 dark:text-slate-400">* 3~6반 학생들이 학습 외 용도로 전자기기 사용 시 벌점 7점 부과해주세요.</span>
+                    </div>
+
+                    <div id="slots-list" class="divide-y divide-slate-100 dark:divide-slate-700">
+                        <!-- Dynamic Slots injected here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 2: Full Schedule Grid Table -->
+        <section id="view-full-schedule" class="hidden space-y-4">
+            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 no-print">
+                    <h3 class="font-bold text-slate-800 dark:text-slate-200 text-lg flex items-center gap-2">
+                        <i data-lucide="table" class="w-5 h-5 text-brand-600"></i>
+                        <span id="full-table-title">월요일 전체 자습 감독 시간표</span>
+                    </h3>
+                    
+                    <!-- Search Input within Table -->
+                    <div class="relative w-full sm:w-64">
+                        <input type="text" id="table-search" placeholder="교사명 또는 반 검색..." class="w-full bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white rounded-lg pl-9 pr-3 py-1.5 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                    </div>
+                </div>
+
+                <!-- Responsive Table Wrapper -->
+                <div class="overflow-x-auto custom-scrollbar rounded-xl border border-slate-200 dark:border-slate-700">
+                    <table class="w-full text-sm text-left text-slate-700 dark:text-slate-200">
+                        <thead class="text-xs uppercase bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold border-b border-slate-200 dark:border-slate-600">
+                            <tr>
+                                <th scope="col" class="px-4 py-3 text-center w-20">교시</th>
+                                <th scope="col" class="px-4 py-3 text-center w-36">시간</th>
+                                <th scope="col" class="px-3 py-3 text-center">3-1</th>
+                                <th scope="col" class="px-3 py-3 text-center">3-2</th>
+                                <th scope="col" class="px-3 py-3 text-center">3-3</th>
+                                <th scope="col" class="px-3 py-3 text-center">3-4</th>
+                                <th scope="col" class="px-3 py-3 text-center">3-5</th>
+                                <th scope="col" class="px-3 py-3 text-center">3-6</th>
+                                <th scope="col" class="px-3 py-3 text-center">3-7</th>
+                                <th scope="col" class="px-3 py-3 text-center">3-8</th>
+                            </tr>
+                        </thead>
+                        <tbody id="full-table-body" class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 py-6 mt-12 text-center text-xs text-slate-500 dark:text-slate-400 no-print">
+        <div class="max-w-7xl mx-auto px-4">
+            <p class="font-medium">3학년 고등학교 수능 대비 자습 감독 시스템</p>
+            <p class="mt-1 text-slate-400 dark:text-slate-500">데이터 출처: 수능 전 감독 시간.xlsx (월/수/목 6교시, 화 7교시, 금 4교시, 11/16 5교시 반영)</p>
+        </div>
+    </footer>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Alert Modal -->
+    <div id="modal-alert" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-xl border border-slate-100 dark:border-slate-700 space-y-4">
+            <div class="w-12 h-12 bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 rounded-full flex items-center justify-center mx-auto">
+                <i data-lucide="bell-ring" class="w-6 h-6"></i>
+            </div>
+            <div class="text-center space-y-1">
+                <h4 class="font-bold text-slate-900 dark:text-white text-lg">자습 감독 시작 5분 전!</h4>
+                <p class="text-xs text-slate-500 dark:text-slate-400" id="modal-alert-desc">잠시 후 자습 감독 시간이 시작됩니다. 감독 교실로 이동해 주세요.</p>
+            </div>
+            <div class="bg-amber-50 dark:bg-amber-950/40 rounded-xl p-3 border border-amber-200 dark:border-amber-800 text-center text-sm font-semibold text-amber-900 dark:text-amber-300" id="modal-alert-details">
+                1교시 (08:40~09:30) : 3학년 1반
+            </div>
+            <button onclick="closeModal()" class="w-full bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl transition-colors text-sm">
+                확인했습니다
+            </button>
+        </div>
+    </div>
+
+    <!-- Embedded Schedule Dataset Extracted Exactly From Excel -->
+    <script>
+        const TIMETABLE_DATA = {
+            "월": {
+                maxPeriod: 6,
+                times: [
+                    { period: "1교시", time: "08:40 ~ 09:30", classes: { "3-1": "우수연", "3-2": "임지윤", "3-3": "박재성", "3-4": "강예령", "3-5": "정보문", "3-6": "박지연", "3-7": "문푸름", "3-8": "박기현" } },
+                    { period: "2교시", time: "09:30 ~ 10:00, 10:20 ~ 10:40", classes: { "3-1": "정유진", "3-2": "이수련", "3-3": "임영진", "3-4": "김영웅", "3-5": "박주희", "3-6": "이남성", "3-7": "강전충", "3-8": "손창모" } },
+                    { period: "3교시", time: "10:40 ~ 11:35", classes: { "3-1": "정유진", "3-2": "이수련", "3-3": "김규리", "3-4": "전대석", "3-5": "박주희", "3-6": "이남성", "3-7": "강전충", "3-8": "이광" } },
+                    { period: "4교시", time: "11:35 ~ 12:10", classes: { "3-1": "정유진", "3-2": "이수련", "3-3": "손창모", "3-4": "전대석", "3-5": "박주희", "3-6": "이남성", "3-7": "강전충", "3-8": "이광" } },
+                    { period: "4교시", time: "13:10 ~ 13:30", classes: { "3-1": "우수연", "3-2": "박지연", "3-3": "손창모", "3-4": "전대석", "3-5": "박주희", "3-6": "이남성", "3-7": "강전충", "3-8": "이광" } },
+                    { period: "5교시", time: "13:30 ~ 14:20", classes: { "3-1": "우수연", "3-2": "백승아", "3-3": "김영웅", "3-4": "강예령", "3-5": "정보문", "3-6": "박지연", "3-7": "강동우", "3-8": "김정현" } },
+                    { period: "6교시", time: "14:40 ~ 15:30", classes: { "3-1": "우수연", "3-2": "임지윤", "3-3": "김영웅", "3-4": "강예령", "3-5": "정보문", "3-6": "김국선", "3-7": "강동우", "3-8": "김정현" } }
+                ]
+            },
+            "화": {
+                maxPeriod: 7,
+                times: [
+                    { period: "1교시", time: "08:40 ~ 09:30", classes: { "3-1": "박주희", "3-2": "정현민", "3-3": "박재성", "3-4": "전대석", "3-5": "우수연", "3-6": "문푸름", "3-7": "서광민", "3-8": "안혜경" } },
+                    { period: "2교시", time: "09:30 ~ 10:00, 10:20 ~ 10:40", classes: { "3-1": "최순영", "3-2": "임지윤", "3-3": "정보문", "3-4": "강예령", "3-5": "우수연", "3-6": "박지연", "3-7": "서형태", "3-8": "장현아" } },
+                    { period: "3교시", time: "10:40 ~ 11:35", classes: { "3-1": "최순영", "3-2": "임지윤", "3-3": "정보문", "3-4": "강예령", "3-5": "김영웅", "3-6": "박기현", "3-7": "김가경", "3-8": "강동우" } },
+                    { period: "4교시", time: "11:35 ~ 12:10, 13:10 ~ 13:30", classes: { "3-1": "백승아", "3-2": "임지윤", "3-3": "문푸름", "3-4": "강예령", "3-5": "최순영", "3-6": "박지연", "3-7": "진효정", "3-8": "김국선" } },
+                    { period: "5교시", time: "13:30 ~ 14:20", classes: { "3-1": "백승아", "3-2": "김가경", "3-3": "박재성", "3-4": "우수연", "3-5": "정보문", "3-6": "박지연", "3-7": "최순영", "3-8": "김영웅" } },
+                    { period: "6교시", time: "14:40 ~ 15:30", classes: { "3-1": "류정숙", "3-2": "천상준", "3-3": "박기현", "3-4": "김국선", "3-5": "김영웅", "3-6": "박지연", "3-7": "장현아", "3-8": "강동우" } },
+                    { period: "7교시", time: "15:40 ~ 16:30", classes: { "3-1": "임예빈", "3-2": "정현민", "3-3": "우수연", "3-4": "전대석", "3-5": "박주희", "3-6": "이남성", "3-7": "강전충", "3-8": "서광민" } }
+                ]
+            },
+            "수": {
+                maxPeriod: 6,
+                times: [
+                    { period: "1교시", time: "08:40 ~ 09:30", classes: { "3-1": "천상준", "3-2": "임지윤", "3-3": "김영웅", "3-4": "강예령", "3-5": "정보문", "3-6": "박지연", "3-7": "강동우", "3-8": "박기현" } },
+                    { period: "2교시", time: "09:30 ~ 10:00, 10:20 ~ 10:40", classes: { "3-1": "임예빈", "3-2": "최혜진", "3-3": "우수연", "3-4": "전대석", "3-5": "장수지", "3-6": "이남성", "3-7": "지명희", "3-8": "서광민" } },
+                    { period: "3교시", time: "10:40 ~ 11:35", classes: { "3-1": "강전충", "3-2": "안혜경", "3-3": "우수연", "3-4": "전대석", "3-5": "문푸름", "3-6": "이남성", "3-7": "지명희", "3-8": "서광민" } },
+                    { period: "4교시", time: "11:35 ~ 12:10, 13:10 ~ 13:30", classes: { "3-1": "김영웅", "3-2": "임지윤", "3-3": "박재성", "3-4": "강예령", "3-5": "정보문", "3-6": "박지연", "3-7": "천상준", "3-8": "강동우" } },
+                    { period: "5교시", time: "13:30 ~ 14:20", classes: { "3-1": "백승아", "3-2": "임지윤", "3-3": "우수연", "3-4": "강예령", "3-5": "문푸름", "3-6": "최순영", "3-7": "진효정", "3-8": "김국선" } },
+                    { period: "6교시", time: "14:40 ~ 15:30", classes: { "3-1": "천상준", "3-2": "강동우", "3-3": "우수연", "3-4": "김영웅", "3-5": "정보문", "3-6": "박기현", "3-7": "류정숙", "3-8": "김국선" } }
+                ]
+            },
+            "목": {
+                maxPeriod: 6,
+                times: [
+                    { period: "1교시", time: "08:40 ~ 09:30", classes: { "3-1": "김가경", "3-2": "임지윤", "3-3": "김영웅", "3-4": "강예령", "3-5": "정보문", "3-6": "박지연", "3-7": "최순영", "3-8": "박기현" } },
+                    { period: "2교시", time: "09:30 ~ 10:00, 10:20 ~ 10:40", classes: { "3-1": "천상준", "3-2": "임지윤", "3-3": "김영웅", "3-4": "우수연", "3-5": "박재성", "3-6": "박지연", "3-7": "강전충", "3-8": "강동우" } },
+                    { period: "3교시", time: "10:40 ~ 11:35", classes: { "3-1": "천상준", "3-2": "임지윤", "3-3": "박기현", "3-4": "강예령", "3-5": "정보문", "3-6": "최순영", "3-7": "김국선", "3-8": "강동우" } },
+                    { period: "4교시", time: "11:35 ~ 12:10, 13:10 ~ 13:30", classes: { "3-1": "우수연", "3-2": "김영웅", "3-3": "박재성", "3-4": "강예령", "3-5": "정보문", "3-6": "박지연", "3-7": "김가경", "3-8": "강동우" } },
+                    { period: "5교시", time: "13:30 ~ 14:20", classes: { "3-1": "우수연", "3-2": "최순영", "3-3": "임지윤", "3-4": "강예령", "3-5": "정보문", "3-6": "박지연", "3-7": "서형태", "3-8": "장현아" } },
+                    { period: "6교시", time: "14:40 ~ 15:30", classes: { "3-1": "천상준", "3-2": "류정숙", "3-3": "임지윤", "3-4": "김영웅", "3-5": "김국선", "3-6": "박기현", "3-7": "강동우", "3-8": "장현아" } }
+                ]
+            },
+            "금": {
+                maxPeriod: 4,
+                times: [
+                    { period: "1교시", time: "08:40 ~ 09:30", classes: { "3-1": "진효정", "3-2": "김국선", "3-3": "김영웅", "3-4": "강예령", "3-5": "문푸름", "3-6": "박지연", "3-7": "최순영", "3-8": "백승아" } },
+                    { period: "2교시", time: "09:30 ~ 10:00, 10:20 ~ 10:40", classes: { "3-1": "천상준", "3-2": "박재성", "3-3": "김영웅", "3-4": "임지윤", "3-5": "정보문", "3-6": "박지연", "3-7": "강전충", "3-8": "강동우" } },
+                    { period: "3교시", time: "10:40 ~ 11:35", classes: { "3-1": "김정현", "3-2": "김가경", "3-3": "김영웅", "3-4": "임지윤", "3-5": "정보문", "3-6": "강예령", "3-7": "박기현", "3-8": "강동우" } },
+                    { period: "4교시", time: "11:35 ~ 12:10", classes: { "3-1": "김정현", "3-2": "박지연", "3-3": "우수연", "3-4": "임지윤", "3-5": "정보문", "3-6": "강예령", "3-7": "서형태", "3-8": "장현아" } },
+                    { period: "4교시", time: "13:10 ~ 13:30", classes: { "3-1": "최순영", "3-2": "박지연", "3-3": "우수연", "3-4": "임지윤", "3-5": "정보문", "3-6": "강예령", "3-7": "서형태", "3-8": "장현아" } }
+                ]
+            },
+            "11/16(월)": {
+                maxPeriod: 5,
+                times: [
+                    { period: "1교시", time: "08:40 ~ 09:30", classes: { "3-1": "정유진", "3-2": "이수련", "3-3": "임영진", "3-4": "박지연", "3-5": "박주희", "3-6": "이남성", "3-7": "강전충", "3-8": "손창모" } },
+                    { period: "2교시", time: "09:30 ~ 10:00, 10:20 ~ 10:40", classes: { "3-1": "정유진", "3-2": "이수련", "3-3": "김규리", "3-4": "전대석", "3-5": "박주희", "3-6": "이남성", "3-7": "강전충", "3-8": "이광" } },
+                    { period: "3교시", time: "10:40 ~ 11:35", classes: { "3-1": "정유진", "3-2": "이수련", "3-3": "손창모", "3-4": "전대석", "3-5": "박주희", "3-6": "이남성", "3-7": "강전충", "3-8": "이광" } },
+                    { period: "4교시", time: "11:35 ~ 12:10, 13:10 ~ 13:30", classes: { "3-1": "우수연", "3-2": "백승아", "3-3": "김영웅", "3-4": "강예령", "3-5": "정보문", "3-6": "박지연", "3-7": "강동우", "3-8": "김정현" } },
+                    { period: "5교시", time: "13:30 ~ 14:20", classes: { "3-1": "우수연", "3-2": "임지윤", "3-3": "김영웅", "3-4": "강예령", "3-5": "정보문", "3-6": "김국선", "3-7": "강동우", "3-8": "김정현" } }
+                ]
+            }
+        };
+
+        // ▼ 구글 시트 주소 (모든 반 공통) — 따옴표 안에 시트 주소를 붙여 넣으세요.
+        //   예) const SHEET_URL = "https://docs.google.com/spreadsheets/d/1xoViJhNCSfRmrkiZA_8Drc_f8zbNcA89uT375_Mc_Pg/edit?usp=sharing";
+        const SHEET_URL = "https://docs.google.com/spreadsheets/d/1xoViJhNCSfRmrkiZA_8Drc_f8zbNcA89uT375_Mc_Pg/edit?usp=sharing";
+
+        // State Management
+        let selectedTeacher = "";
+        let selectedDay = getCurrentDayKey();
+        let activeTab = "my"; // 'my' or 'full'
+
+        // DOM Elements
+        const teacherSelect = document.getElementById("teacher-select");
+        const dayTabs = document.querySelectorAll(".day-tab");
+        const savedTeacherInfo = document.getElementById("saved-teacher-info");
+        const currentTeacherName = document.getElementById("current-teacher-name");
+        const btnSaveDefault = document.getElementById("btn-save-default");
+
+        const tabMySchedule = document.getElementById("tab-my-schedule");
+        const tabFullSchedule = document.getElementById("tab-full-schedule");
+        const viewMySchedule = document.getElementById("view-my-schedule");
+        const viewFullSchedule = document.getElementById("view-full-schedule");
+
+        const noTeacherPrompt = document.getElementById("no-teacher-prompt");
+        const teacherScheduleContainer = document.getElementById("teacher-schedule-container");
+
+        const cardTeacherName = document.getElementById("card-teacher-name");
+        const badgeSelectedDay = document.getElementById("badge-selected-day");
+        const badgeDateSub = document.getElementById("badge-date-sub");
+        const countSlots = document.getElementById("count-slots");
+        const slotsList = document.getElementById("slots-list");
+
+        const fullTableTitle = document.getElementById("full-table-title");
+        const fullTableBody = document.getElementById("full-table-body");
+        const tableSearch = document.getElementById("table-search");
+
+        // "월" → "월요일", "11/16(월)" → "11월 16일(월)"
+        function dayLabel(day) {
+            return day.includes("11/16") ? "11월 16일(월)" : `${day}요일`;
+        }
+
+        function getCurrentDayKey() {
+            const dayNum = new Date().getDay();
+            const days = ["일", "월", "화", "수", "목", "금", "토"];
+            const currentDay = days[dayNum];
+            return ["월", "화", "수", "목", "금"].includes(currentDay) ? currentDay : "월";
+        }
+
+        window.onload = function() {
+            lucide.createIcons();
+            startLiveClock();
+            initTheme();
+            extractAndPopulateTeachers();
+            loadSavedDefaultTeacher();
+            updateDayTabsUI();
+            renderView();
+
+            // Event Listeners
+            teacherSelect.addEventListener("change", (e) => {
+                selectedTeacher = e.target.value;
+                if(selectedTeacher) {
+                    btnSaveDefault.classList.remove("hidden");
+                    currentTeacherName.textContent = selectedTeacher;
+                } else {
+                    btnSaveDefault.classList.add("hidden");
+                    currentTeacherName.textContent = "없음";
+                }
+                renderView();
+            });
+
+            dayTabs.forEach(tab => {
+                tab.addEventListener("click", () => {
+                    selectedDay = tab.getAttribute("data-day");
+                    updateDayTabsUI();
+                    renderView();
+                });
+            });
+
+            tabMySchedule.addEventListener("click", () => {
+                activeTab = "my";
+                tabMySchedule.className = "px-5 py-3 text-sm font-bold border-b-2 border-brand-600 text-brand-600 dark:text-brand-400 flex items-center gap-2";
+                tabFullSchedule.className = "px-5 py-3 text-sm font-bold border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 flex items-center gap-2";
+                viewMySchedule.classList.remove("hidden");
+                viewFullSchedule.classList.add("hidden");
+            });
+
+            tabFullSchedule.addEventListener("click", () => {
+                activeTab = "full";
+                tabFullSchedule.className = "px-5 py-3 text-sm font-bold border-b-2 border-brand-600 text-brand-600 dark:text-brand-400 flex items-center gap-2";
+                tabMySchedule.className = "px-5 py-3 text-sm font-bold border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 flex items-center gap-2";
+                viewFullSchedule.classList.remove("hidden");
+                viewMySchedule.classList.add("hidden");
+                renderFullTable();
+            });
+
+            btnSaveDefault.addEventListener("click", () => {
+                if(selectedTeacher) {
+                    localStorage.setItem("defaultTeacher", selectedTeacher);
+                    showToast(`${selectedTeacher} 선생님이 기본 선생님으로 설정되었습니다.`);
+                }
+            });
+
+            document.getElementById("btn-theme-toggle").addEventListener("click", toggleTheme);
+            document.getElementById("btn-print").addEventListener("click", () => window.print());
+            document.getElementById("btn-copy-schedule").addEventListener("click", copyScheduleToClipboard);
+            document.getElementById("btn-test-alert").addEventListener("click", showTestModalAlert);
+            tableSearch.addEventListener("input", renderFullTable);
+        };
+
+        function initTheme() {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+
+        function toggleTheme() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            }
+        }
+
+        function startLiveClock() {
+            function update() {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const date = String(now.getDate()).padStart(2, '0');
+                const days = ['일', '월', '화', '수', '목', '금', '토'];
+                const dayName = days[now.getDay()];
+
+                document.getElementById('live-date').textContent = `${year}. ${month}. ${date} (${dayName})`;
+                document.getElementById('live-clock').textContent = now.toTimeString().split(' ')[0];
+            }
+            update();
+            setInterval(update, 1000);
+        }
+
+        function extractAndPopulateTeachers() {
+            const teachersSet = new Set();
+            Object.values(TIMETABLE_DATA).forEach(dayData => {
+                dayData.times.forEach(slot => {
+                    Object.values(slot.classes).forEach(teacher => {
+                        if(teacher && teacher !== "-") teachersSet.add(teacher.trim());
+                    });
+                });
+            });
+
+            const sortedTeachers = Array.from(teachersSet).sort();
+            teacherSelect.innerHTML = `<option value="">선생님 이름을 선택하세요</option>`;
+            sortedTeachers.forEach(name => {
+                const opt = document.createElement("option");
+                opt.value = name;
+                opt.textContent = name;
+                teacherSelect.appendChild(opt);
+            });
+        }
+
+        function loadSavedDefaultTeacher() {
+            const saved = localStorage.getItem("defaultTeacher");
+            if(saved) {
+                selectedTeacher = saved;
+                teacherSelect.value = saved;
+                currentTeacherName.textContent = saved;
+                btnSaveDefault.classList.remove("hidden");
+            }
+        }
+
+        function updateDayTabsUI() {
+            dayTabs.forEach(tab => {
+                const day = tab.getAttribute("data-day");
+                if(day === selectedDay) {
+                    if(day === "11/16(월)") {
+                        tab.className = "day-tab px-3 py-2 text-sm font-bold rounded-lg bg-amber-500 text-white shadow-sm transition-all border border-amber-600";
+                    } else {
+                        tab.className = "day-tab px-3 py-2 text-sm font-bold rounded-lg bg-brand-600 text-white shadow-sm transition-all";
+                    }
+                } else {
+                    if(day === "11/16(월)") {
+                        tab.className = "day-tab px-3 py-2 text-sm font-semibold rounded-lg transition-all text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 border border-amber-300/50";
+                    } else {
+                        tab.className = "day-tab px-3 py-2 text-sm font-semibold rounded-lg transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600";
+                    }
+                }
+            });
+        }
+
+        function renderView() {
+            if (activeTab === "my") {
+                renderTeacherSchedule();
+            } else {
+                renderFullTable();
+            }
+        }
+
+        function renderTeacherSchedule() {
+            if(!selectedTeacher) {
+                noTeacherPrompt.classList.remove("hidden");
+                teacherScheduleContainer.classList.add("hidden");
+                return;
+            }
+
+            noTeacherPrompt.classList.add("hidden");
+            teacherScheduleContainer.classList.remove("hidden");
+
+            cardTeacherName.textContent = selectedTeacher;
+            badgeSelectedDay.textContent = selectedDay.includes("11/16") ? "11월 16일(월) 특별" : `${selectedDay}요일`;
+            badgeDateSub.textContent = selectedDay.includes("11/16") ? "특별 수능 대비 시간표 (총 5교시)" : `정규 자습 감독 시간표 (총 ${TIMETABLE_DATA[selectedDay].maxPeriod}교시)`;
+
+            const dayData = TIMETABLE_DATA[selectedDay];
+            if(!dayData) return;
+
+            const teacherSlots = [];
+            dayData.times.forEach(slot => {
+                Object.entries(slot.classes).forEach(([cls, teacher]) => {
+                    if(teacher === selectedTeacher) {
+                        teacherSlots.push({
+                            period: slot.period,
+                            time: slot.time,
+                            className: cls
+                        });
+                    }
+                });
+            });
+
+            countSlots.textContent = `${teacherSlots.length}개 교시`;
+            slotsList.innerHTML = "";
+
+            if(teacherSlots.length === 0) {
+                slotsList.innerHTML = `
+                    <div class="p-8 text-center text-slate-500 dark:text-slate-400">
+                        <i data-lucide="coffee" class="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2"></i>
+                        <p class="font-medium">${dayLabel(selectedDay)}에는 배정된 자습 감독이 없습니다.</p>
+                    </div>
+                `;
+            } else {
+                teacherSlots.forEach(item => {
+                    const div = document.createElement("div");
+                    div.className = "p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:bg-slate-50/80 dark:hover:bg-slate-700/50 transition-colors";
+                    div.innerHTML = `
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-brand-50 dark:bg-brand-950/50 border border-brand-100 dark:border-brand-800 text-brand-700 dark:text-brand-300 font-bold flex flex-col items-center justify-center shrink-0">
+                                <span class="text-xs text-brand-500 dark:text-brand-400 font-medium">교시</span>
+                                <span class="text-base leading-none">${item.period.replace("교시","")}</span>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-base font-bold text-slate-900 dark:text-white">${item.period}</span>
+                                    <span class="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs px-2 py-0.5 rounded font-medium">${item.time}</span>
+                                </div>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">3학년 자습 감독</p>
+                            </div>
+                        </div>
+                        <div class="self-end sm:self-auto">
+                            <a href="${SHEET_URL || '#'}" target="_blank" rel="noopener noreferrer" title="구글 시트 열기"
+                               onclick="if(!SHEET_URL){ event.preventDefault(); showToast('시트 주소가 아직 등록되지 않았습니다.'); }"
+                               class="inline-flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm px-4 py-2 rounded-xl shadow-sm transition-colors cursor-pointer">
+                                <i data-lucide="map-pin" class="w-4 h-4"></i>
+                                ${item.className.replace("3-", "3학년 ")}반
+                                <i data-lucide="external-link" class="w-3.5 h-3.5 opacity-80"></i>
+                            </a>
+                        </div>
+                    `;
+                    slotsList.appendChild(div);
+                });
+            }
+            lucide.createIcons();
+        }
+
+        function renderFullTable() {
+            fullTableTitle.textContent = `${dayLabel(selectedDay)} 전체 자습 감독 시간표 (총 ${TIMETABLE_DATA[selectedDay].maxPeriod}교시)`;
+            const dayData = TIMETABLE_DATA[selectedDay];
+            if(!dayData) return;
+
+            const searchQuery = tableSearch.value.trim().toLowerCase();
+            fullTableBody.innerHTML = "";
+
+            dayData.times.forEach(slot => {
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-slate-50/80 dark:hover:bg-slate-700/50 transition-colors";
+
+                let cellsHtml = `
+                    <td class="px-4 py-3 text-center font-bold text-brand-700 dark:text-brand-400 bg-slate-50/50 dark:bg-slate-800/50">${slot.period}</td>
+                    <td class="px-4 py-3 text-center text-xs font-semibold text-slate-500 dark:text-slate-400">${slot.time}</td>
+                `;
+
+                for(let i=1; i<=8; i++) {
+                    const clsKey = `3-${i}`;
+                    const teacher = slot.classes[clsKey] || "-";
+                    
+                    let isMatched = false;
+                    if(searchQuery) {
+                        isMatched = teacher.toLowerCase().includes(searchQuery) || clsKey.includes(searchQuery);
+                    }
+
+                    const isSelectedTeacher = selectedTeacher && teacher === selectedTeacher;
+
+                    let bgClass = "bg-white dark:bg-slate-800";
+                    let textClass = "text-slate-800 dark:text-slate-200";
+
+                    if(isSelectedTeacher) {
+                        bgClass = "bg-brand-50 dark:bg-brand-950/80 font-bold border-2 border-brand-500 rounded-lg";
+                        textClass = "text-brand-700 dark:text-brand-300";
+                    } else if(isMatched) {
+                        bgClass = "bg-amber-100 dark:bg-amber-900/60 font-bold";
+                        textClass = "text-amber-900 dark:text-amber-200";
+                    }
+
+                    cellsHtml += `
+                        <td class="px-3 py-3 text-center font-medium ${bgClass} ${textClass}">
+                            ${teacher}
+                        </td>
+                    `;
+                }
+
+                tr.innerHTML = cellsHtml;
+                fullTableBody.appendChild(tr);
+            });
+        }
+
+        function copyScheduleToClipboard() {
+            if(!selectedTeacher) {
+                showToast("선생님을 먼저 선택해 주세요.");
+                return;
+            }
+
+            const dayData = TIMETABLE_DATA[selectedDay];
+            const teacherSlots = [];
+            dayData.times.forEach(slot => {
+                Object.entries(slot.classes).forEach(([cls, teacher]) => {
+                    if(teacher === selectedTeacher) {
+                        teacherSlots.push(`${slot.period}(${slot.time}): ${cls.replace("3-", "3학년 ")}반`);
+                    }
+                });
+            });
+
+            let text = `[3학년 자습 감독 일정]\n- 교사명: ${selectedTeacher}\n- 요일: ${selectedDay}\n`;
+            if(teacherSlots.length === 0) {
+                text += "- 배정된 감독이 없습니다.";
+            } else {
+                text += teacherSlots.map(s => `- ${s}`).join("\n");
+            }
+
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            showToast("일정이 클립보드에 복사되었습니다.");
+        }
+
+        function showToast(msg) {
+            const container = document.getElementById("toast-container");
+            const toast = document.createElement("div");
+            toast.className = "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-xs font-semibold px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 pointer-events-auto";
+            toast.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400 dark:text-emerald-600"></i> ${msg}`;
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.classList.add("opacity-0", "transition-opacity");
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+
+        function showTestModalAlert() {
+            if(!selectedTeacher) {
+                showToast("선생님을 먼저 선택해 주세요.");
+                return;
+            }
+            const modal = document.getElementById("modal-alert");
+            const desc = document.getElementById("modal-alert-desc");
+            const details = document.getElementById("modal-alert-details");
+
+            desc.textContent = `${selectedTeacher} 선생님, 감독 시간 시작 5분 전입니다!`;
+            details.textContent = `${dayLabel(selectedDay)} 자습 감독 장소를 확인해 주세요.`;
+
+            modal.classList.remove("hidden");
+        }
+
+        function closeModal() {
+            document.getElementById("modal-alert").classList.add("hidden");
+        }
+    </script>
+</body>
+</html>
